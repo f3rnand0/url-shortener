@@ -1,19 +1,18 @@
 package dkb.fernando.guerra.urlshortener.controller
 
+import dkb.fernando.guerra.urlshortener.dto.URLDto
 import dkb.fernando.guerra.urlshortener.service.URLShortenerService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class URLShortenerController(val urlShortenerService: URLShortenerService) {
-    @GetMapping("/getHash")
-    fun getHashFromURL(@PathVariable url: String): String {
-        return urlShortenerService.shortenURL(url)
+    @PostMapping("/api/getHash")
+    fun getHashFromURL(@RequestBody urlDto: URLDto): URLDto {
+        return urlShortenerService.shortenURL(urlDto)
     }
 
-    @GetMapping("/getURL")
-    fun getURLFromHash(@PathVariable hash: String): String {
+    @GetMapping("/api/getURL")
+    fun getURLFromHash(@RequestParam("hash") hash: String): URLDto {
         return urlShortenerService.expandURL(hash)
     }
 

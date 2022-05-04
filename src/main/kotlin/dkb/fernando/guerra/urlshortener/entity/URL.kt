@@ -2,10 +2,12 @@ package dkb.fernando.guerra.urlshortener.entity
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
 import javax.persistence.Id
 
 @Entity
-class URL(
-    @Id @GeneratedValue var id: Long,
+data class URL(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     val url: String,
-    val hash: String)
+    val hash: String
+)
