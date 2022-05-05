@@ -12,8 +12,11 @@ class URLShortenerController(val urlShortenerService: URLShortenerService) {
     }
 
     @GetMapping("/api/getURL")
-    fun getURLFromHash(@RequestParam("hash") hash: String): URLDto {
-        return urlShortenerService.expandURL(hash)
+    fun getURLFromHash(
+        @RequestParam("username") username: String,
+        @RequestParam("hash") hash: String
+    ): URLDto {
+        return urlShortenerService.expandURL(username, hash)
     }
 
 }

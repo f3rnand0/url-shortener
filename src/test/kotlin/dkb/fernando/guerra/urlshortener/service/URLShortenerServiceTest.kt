@@ -14,11 +14,18 @@ internal class URLShortenerServiceTest {
     private val urlShortenerRepository: URLShortenerRepository = mockk()
     private val urlShortenerService = URLShortenerService(urlShortenerRepository)
 
-    private val sampleUrlDto = URLDto("https://example.com", "aHR0cHM6Ly9leGFtcGxlLmNvbQ==")
+    private val sampleUrlDto =
+        URLDto("fguerra", "https://example.com", "aHR0cHM6Ly9leGFtcGxlLmNvbQ==")
 
     @Test
-    fun whenShortenURL_thenReturnHash() {
-        val url = URL(1, sampleUrlDto.url, "aHR0cHM6Ly9leGFtcGxlLmNvbQ==")
+    fun whenShortenURLAndHashDoesNotExist_thenReturnHash() {
+        val url = URL(1, sampleUrlDto.username, sampleUrlDto.url, "aHR0cHM6Ly9leGFtcGxlLmNvbQ==")
+        every {
+            urlShortenerRepository.findByUsernameAndHash(
+                sampleUrlDto.username,
+                sampleUrlDto.hash!!
+            )
+        } returns null
         every { urlShortenerRepository.save(any()) } returns url
         val result = urlShortenerService.shortenURL(sampleUrlDto)
         verify(exactly = 1) { urlShortenerRepository.save(any()) }
@@ -27,10 +34,20 @@ internal class URLShortenerServiceTest {
 
     @Test
     fun whenExpandURL_thenReturnExtendedURL() {
-        val url = URL(1, sampleUrlDto.url, "aHR0cHM6Ly9leGFtcGxlLmNvbQ==")
-        every { urlShortenerRepository.findByHash(sampleUrlDto.hash!!) } returns url
-        val result = urlShortenerService.expandURL(sampleUrlDto.hash!!)
-        verify(exactly = 1) { urlShortenerRepository.findByHash(sampleUrlDto.hash!!) }
+        val url = URL(1, sampleUrlDto.username, sampleUrlDto.url, "aHR0cHM6Ly9leGFtcGxlLmNvbQ==")
+        every {
+            urlShortenerRepository.findByUsernameAndHash(
+                sampleUrlDto.username,
+                sampleUrlDto.hash!!
+            )
+        } returns url
+        val result = urlShortenerService.expandURL(sampleUrlDto.username, sampleUrlDto.hash!!)
+        verify(exactly = 1) {
+            urlShortenerRepository.findByUsernameAndHash(
+                sampleUrlDto.username,
+                sampleUrlDto.hash!!
+            )
+        }
         assertEquals(sampleUrlDto.url, result.url)
     }
 }

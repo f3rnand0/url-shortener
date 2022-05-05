@@ -14,19 +14,24 @@ class URLShortenerService(val urlShortenerRepository: URLShortenerRepository) {
 
     fun shortenURL(urlDto: URLDto): URLDto {
         val hash = encodeURL(urlDto.url)
-        val urlToSave = URL(null, urlDto.url, hash)
-        val urlSaved = urlShortenerRepository.save(urlToSave)
-        return URLDto(urlSaved.url, urlSaved.hash)
+        val urlRetrieved = urlShortenerRepository.findByUsernameAndHash(urlDto.username, hash)
+        if (urlRetrieved != null)
+            return URLDto(urlRetrieved.username, urlRetrieved.url, urlRetrieved.hash)
+        else {
+            val urlToSave = URL(null, urlDto.username, urlDto.url, hash)
+            val urlSaved = urlShortenerRepository.save(urlToSave)
+            return URLDto(urlSaved.username, urlSaved.url, urlSaved.hash)
+        }
     }
 
-    fun expandURL(hash: String): URLDto {
-        val urlRetrieved = urlShortenerRepository.findByHash(hash)
-        if (urlRetrieved != null)
-            return URLDto(urlRetrieved.url, urlRetrieved.hash)
-        else
+    fun expandURL(username: String, hash: String): URLDto {
+        val urlRetrieved = urlShortenerRepository.findByUsernameAndHash(username, hash)
+        if (urlRetrieved == null)
             throw ResponseStatusException(
                 HttpStatus.NOT_FOUND, "URL not found"
             )
+        else
+            return URLDto(urlRetrieved.username, urlRetrieved.url, urlRetrieved.hash)
     }
 
     fun encodeURL(url: String): String {
